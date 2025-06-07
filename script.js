@@ -1,13 +1,13 @@
 var selectedTile=null;
 
 class sudoko{
-    constructor(questions,solution){
+    constructor(questions=""){
         this.rHash=Array.from({length:9},()=>new Set());
         this.cHash=Array.from({length:9},()=>new Set());
         this.boxHash=Array.from({length:9},()=>new Set());
 
         this.question=questions;
-        this.solution=solution;
+        //this.solution=solution;
     }
     display=(mat)=>{
         mat.array.forEach(element => {
@@ -63,9 +63,9 @@ class sudoko{
             }
         }
         this.backtrack(0,0,mat);
-        const ans=this.solution;
+        //const ans=this.solution;
         const finalAns=this.boardToString(mat);
-        return ans===finalAns;
+        return mat;
     }
 }
 
@@ -88,7 +88,7 @@ class Tile{
         this.element.style.height=cellSize+"px";
         this.element.classList.add("cell")
         this.val="";
-        this.element.innerHTML=this.val!==""||this.val!=="0"?this.val:"";
+        this.element.innerHTML=(this.val!=="" && this.val!=="0")?this.val:"";
 
         this.element.addEventListener("click",()=>{
             if(selectedTile) selectedTile.element.classList.remove("selected");
@@ -139,15 +139,23 @@ for(let i=0;i<9;i++){
         board.appendChild(grid[i][j].element);
     }
 }
-function clear(){
-    for(let i=0;i<9;i++){
-        for(let j=0;j<9;j++){
-            grid[i][j].element.val="";
-            grid[i][j].element.innerHTML="";
-        }
-    }
-    selectedTile=null;
-}
+// function clear(){
+//     for(let i=0;i<9;i++){
+//         for(let j=0;j<9;j++){
+//             grid[i][j].val="";
+//             grid[i][j].element.innerHTML="";
+//             if(grid[i][j].element.classList.contains("OG-clrs")){
+//                 grid[i][j].element.classList.remove("OG-clrs");
+//             }   
+//         }
+//     }
+//     if (selectedTile) {
+//         selectedTile.element.classList.remove("selected");
+//         selectedTile = null;
+//     }
+//     numb.style.display="block";
+// }
+let clear=(()=>{window.location.reload()})
 document.getElementById("reset").addEventListener("click",()=>{clear();console.log("RESETTED!")});
 
 let num=document.getElementById('numbers');
@@ -157,4 +165,29 @@ for(let i=0;i<10;i++){
     num.appendChild(buttons[i].element);
 }
 
-document.querySelector('numss');
+function display(mat){
+    for(let i=0;i<9;i++){
+        for(let j=0;j<9;j++){
+            grid[i][j].element.innerHTML=mat[i][j];
+        }
+    }
+}
+let numb=document.getElementById("numbers");
+document.getElementById("submit").addEventListener("click",()=>{
+    let boardString=grid.map(row=>row.map(cell=>{
+        const val=cell.element.innerHTML.trim();
+        return (val===""||val=="CLEAR")?"0":val;
+    }).join("")).join("");
+
+    grid.forEach((val)=>val.forEach((el)=>{
+        const val=el.element.innerHTML.trim();
+        if(val!==""){
+            el.element.classList.add("OG-clrs");
+        }
+    }))
+    let SUDOKO=new sudoko(boardString);
+    const solved = SUDOKO.solveIt();
+    console.log(solved);
+    display(solved);
+    numb.style.display="none";
+});
