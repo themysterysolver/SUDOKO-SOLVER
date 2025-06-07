@@ -95,29 +95,36 @@ class Tile{
             selectedTile=this;
             this.element.classList.add("selected");
         });
+
+        if(r%3===0) this.element.classList.add("thick-top");
+        if(c%3===0) this.element.classList.add("thick-left");
+        if(r===8) this.element.classList.add("thick-btm");
+        if(c===8) this.element.classList.add("thick-right");
     }    
 }
 
 class numbers{
     constructor(id){
-        this.id=id;
+        this.id=id+1;
         this.element=document.createElement('div');
          this.element.style.width=cellSize+"px";
         this.element.style.height=cellSize+"px";
         this.element.classList.add("numss")
         this.element.id=this.id.toString();
-        this.element.innerHTML=this.id!==9?this.id:"CLEAR";
-        if(this.id===9){
+        this.element.innerHTML=id!==9?this.id:"CLEAR";
+        if(id===9){
             this.element.style.width=70+"px";
             this.element.addEventListener("click",()=>{
+                console.log("CLEAR CLICKED!!");
                 if(selectedTile){
-                    selectedTile.innerHTML=this.id;
+                    selectedTile.element.innerHTML="";
                 }
             });
         }else{
             this.element.addEventListener("click",()=>{
+                console.log("CLICKED",this.id);
                 if(selectedTile){
-                    selectedTile.innerHTML=this.id;
+                    selectedTile.element.innerHTML=this.id;
                 }
             });
         }
