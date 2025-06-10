@@ -41,6 +41,13 @@ The classic 9x9 Sudoku board requires each row, column, and 3x3 sub-grid to cont
 - wanna revise backtracking
 - warming up hcj and python
 - ofc for fun
+- Inspired from *leetcode* [`37. Sudoku Solver`](https://leetcode.com/problems/sudoku-solver/description/) ,I love problem solving.
+
+![image](https://github.com/user-attachments/assets/9672e88a-f8fe-4e66-9542-ce027316b43b)
+
+
+
+
 
 ## REPO structure
 
