@@ -57,3 +57,7 @@ body,html{
     color: rgb(11, 124, 238);
     background-color: rgb(220, 248, 248);
 }
+.alert-it{
+    background-color: crimson;
+    color: rgb(244, 244, 244);
+}

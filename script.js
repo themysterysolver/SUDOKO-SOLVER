@@ -51,7 +51,12 @@ class sudoko{
         }
         return false;
     }
-
+    isValid=(ch)=>{
+        let x=selectedTile.x;
+        let y=selectedTile.y;
+        let bIdx=Math.floor(x/3)*3+Math.floor(y/3);
+        return !(this.rHash[x].has(ch) || this.cHash[y].has(ch) || this.boxHash[bIdx].has(ch))
+    }
     solveIt(){
         const mat=this.stringToMatrix(this.question);
         for(let i=0;i<9;i++){
@@ -77,6 +82,28 @@ class sudoko{
 // for(const [question,solution] of Object.entries(json)){
 //     console.log(new sudoko(question,solution).solveIt());
 // }
+
+function checker(character){
+    let boardString=grid.map(row=>row.map(cell=>{
+        const val=cell.val;
+        return (val===""||val=="0")?"0":val;
+    }).join("")).join("");
+    let SUDOKO=new sudoko(boardString);
+
+    const mat = SUDOKO.stringToMatrix(boardString);
+    for(let i = 0; i < 9; i++){
+        for(let j = 0; j < 9; j++){
+            const val = mat[i][j];
+            if(val !== "0"){
+                SUDOKO.rHash[i].add(val);
+                SUDOKO.cHash[j].add(val);
+                SUDOKO.boxHash[Math.floor(i/3)*3 + Math.floor(j/3)].add(val);
+            }
+        }
+    }
+
+    return SUDOKO.isValid(character);
+}
 
 const cellSize=30;
 class Tile{
@@ -106,6 +133,7 @@ class Tile{
     }    
 }
 
+var sub=document.getElementById('submit');
 class numbers{
     constructor(id){ //integer
         this.id=id+1; //this stores integer
@@ -123,14 +151,29 @@ class numbers{
                 if(selectedTile){
                     selectedTile.element.innerHTML="";
                     selectedTile.val="0";
+                    sub.style.display="block"
+                    if(selectedTile.element.classList.contains("alert-it")){
+                        selectedTile.element.classList.remove("alert-it")
+                    }
                 }
             });
         }else{
             this.element.addEventListener("click",()=>{
                 console.log("CLICKED",this.id);
                 if(selectedTile){
-                    selectedTile.element.innerHTML=this.id;
-                    selectedTile.val=this.id.toString()
+                    if(!checker(this.id.toString())){
+                        selectedTile.element.classList.add("alert-it");
+                        sub.style.display="none"
+                        selectedTile.element.innerHTML=this.id;
+                        selectedTile.val=this.id.toString();
+                    }else{
+                        if(selectedTile.element.classList.contains("alert-it")){
+                            selectedTile.element.classList.remove("alert-it")
+                            sub.style.display="block"
+                        }
+                        selectedTile.element.innerHTML=this.id;
+                        selectedTile.val=this.id.toString();
+                    }
                 }
             });
         }
