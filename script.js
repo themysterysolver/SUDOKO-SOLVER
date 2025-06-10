@@ -1,5 +1,6 @@
 var selectedTile=null;
 
+//CLASS SUDOKO 
 class sudoko{
     constructor(questions=""){
         this.rHash=Array.from({length:9},()=>new Set());
@@ -87,8 +88,10 @@ class Tile{
         this.element.style.width=cellSize+"px";
         this.element.style.height=cellSize+"px";
         this.element.classList.add("cell")
-        this.val="";
-        this.element.innerHTML=(this.val!=="" && this.val!=="0")?this.val:"";
+
+        this.val="0"; //all tiles are initially 0 I mean,strings!
+
+        this.element.innerHTML=(this.val!=="0")?this.val:"";
 
         this.element.addEventListener("click",()=>{
             if(selectedTile) selectedTile.element.classList.remove("selected");
@@ -104,13 +107,14 @@ class Tile{
 }
 
 class numbers{
-    constructor(id){
-        this.id=id+1;
+    constructor(id){ //integer
+        this.id=id+1; //this stores integer
         this.element=document.createElement('div');
          this.element.style.width=cellSize+"px";
         this.element.style.height=cellSize+"px";
         this.element.classList.add("numss")
         this.element.id=this.id.toString();
+
         this.element.innerHTML=id!==9?this.id:"CLEAR";
         if(id===9){
             this.element.style.width=70+"px";
@@ -118,6 +122,7 @@ class numbers{
                 console.log("CLEAR CLICKED!!");
                 if(selectedTile){
                     selectedTile.element.innerHTML="";
+                    selectedTile.val="0";
                 }
             });
         }else{
@@ -125,6 +130,7 @@ class numbers{
                 console.log("CLICKED",this.id);
                 if(selectedTile){
                     selectedTile.element.innerHTML=this.id;
+                    selectedTile.val=this.id.toString()
                 }
             });
         }
@@ -132,13 +138,19 @@ class numbers{
 }
 
 let board=document.getElementById('board');
-const grid=Array.from({length:9},()=>new Array(9));
+
+//array to chnage div elements
+//tiles defiend!
+const grid=Array.from({length:9},()=>new Array(9)); 
+
+//populating the grid with tile
 for(let i=0;i<9;i++){
     for(let j=0;j<9;j++){
         grid[i][j]=new Tile(i,j);
         board.appendChild(grid[i][j].element);
     }
 }
+
 // function clear(){
 //     for(let i=0;i<9;i++){
 //         for(let j=0;j<9;j++){
@@ -155,9 +167,12 @@ for(let i=0;i<9;i++){
 //     }
 //     numb.style.display="block";
 // }
+
+//CLEAR BUTTON
 let clear=(()=>{window.location.reload()})
 document.getElementById("reset").addEventListener("click",()=>{clear();console.log("RESETTED!")});
 
+//querying and populatting
 let num=document.getElementById('numbers');
 let buttons=Array(10);
 for(let i=0;i<10;i++){
@@ -172,22 +187,36 @@ function display(mat){
         }
     }
 }
+
 let numb=document.getElementById("numbers");
+
+function consoleDisplay(mat){
+    console.log(mat);
+}
 document.getElementById("submit").addEventListener("click",()=>{
     let boardString=grid.map(row=>row.map(cell=>{
-        const val=cell.element.innerHTML.trim();
-        return (val===""||val=="CLEAR")?"0":val;
+        const val=cell.val;
+        return (val===""||val=="0")?"0":val;
     }).join("")).join("");
 
+    console.log(boardString);
+
+    //colouring 'em with OG given colours
     grid.forEach((val)=>val.forEach((el)=>{
         const val=el.element.innerHTML.trim();
         if(val!==""){
             el.element.classList.add("OG-clrs");
         }
     }))
+
     let SUDOKO=new sudoko(boardString);
     const solved = SUDOKO.solveIt();
     console.log(solved);
+
+    consoleDisplay(solved);
+
+    //actual display (painting the board)
     display(solved);
+
     numb.style.display="none";
 });
