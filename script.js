@@ -1,5 +1,5 @@
 var selectedTile=null;
-
+var error=0;
 //CLASS SUDOKO 
 class sudoko{
     constructor(questions=""){
@@ -151,9 +151,12 @@ class numbers{
                 if(selectedTile){
                     selectedTile.element.innerHTML="";
                     selectedTile.val="0";
-                    sub.style.display="block"
                     if(selectedTile.element.classList.contains("alert-it")){
+                        error-=1
                         selectedTile.element.classList.remove("alert-it")
+                    }
+                    if(error===0){
+                        sub.style.display="block";
                     }
                 }
             });
@@ -164,12 +167,16 @@ class numbers{
                     if(!checker(this.id.toString())){
                         selectedTile.element.classList.add("alert-it");
                         sub.style.display="none"
+                        error+=1
                         selectedTile.element.innerHTML=this.id;
                         selectedTile.val=this.id.toString();
                     }else{
                         if(selectedTile.element.classList.contains("alert-it")){
                             selectedTile.element.classList.remove("alert-it")
-                            sub.style.display="block"
+                            error-=1
+                            if(error==0){
+                                sub.style.display="block";
+                            }
                         }
                         selectedTile.element.innerHTML=this.id;
                         selectedTile.val=this.id.toString();
