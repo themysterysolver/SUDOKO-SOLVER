@@ -105,7 +105,7 @@ function checker(character){
     return SUDOKO.isValid(character);
 }
 
-const cellSize=30;
+const cellSize=45;
 class Tile{
     constructor(r,c){
         this.x=r;
