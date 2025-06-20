@@ -1,5 +1,5 @@
 var selectedTile=null;
-var error=0;
+var error=false;
 //CLASS SUDOKO 
 class sudoko{
     constructor(questions=""){
@@ -151,12 +151,15 @@ class numbers{
                 if(selectedTile){
                     selectedTile.element.innerHTML="";
                     selectedTile.val="0";
-                    if(selectedTile.element.classList.contains("alert-it")){
-                        error-=1
-                        selectedTile.element.classList.remove("alert-it")
-                    }
-                    if(error===0){
+
+                    if(isFullBoardError()){ //if no error return True
                         sub.style.display="block";
+                        error=false;
+                        clearError();
+                    }else{
+                        //make board normal!
+                        showError();
+                        error=true;
                     }
                 }
             });
@@ -164,23 +167,21 @@ class numbers{
             this.element.addEventListener("click",()=>{
                 console.log("CLICKED",this.id);
                 if(selectedTile){
-                    if(!checker(this.id.toString())){
-                        selectedTile.element.classList.add("alert-it");
+
+                    selectedTile.element.innerHTML=this.id;
+                    selectedTile.val=this.id.toString();
+
+                    if(!isFullBoardError()){
                         sub.style.display="none"
-                        error+=1
-                        selectedTile.element.innerHTML=this.id;
-                        selectedTile.val=this.id.toString();
+                        showError();
                     }else{
-                        if(selectedTile.element.classList.contains("alert-it")){
-                            selectedTile.element.classList.remove("alert-it")
-                            error-=1
-                            if(error==0){
-                                sub.style.display="block";
-                            }
+                        sub.style.display="block";
+                        if(error){
+                            clearError();
+                            error=false;
                         }
-                        selectedTile.element.innerHTML=this.id;
-                        selectedTile.val=this.id.toString();
                     }
+
                 }
             });
         }
@@ -270,3 +271,37 @@ document.getElementById("submit").addEventListener("click",()=>{
 
     numb.style.display="none";
 });
+
+
+function isFullBoardError(){
+    let boardString=grid.map(row=>row.map(cell=>{
+        const val=cell.val;
+        return (val===""||val=="0")?"0":val;
+    }).join("")).join("");
+    let SUDOKO=new sudoko(boardString);
+
+    const mat = SUDOKO.stringToMatrix(boardString);
+    for(let i = 0; i < 9; i++){
+        for(let j = 0; j < 9; j++){
+            const val = mat[i][j];
+            if(val !== "0"){
+                if(SUDOKO.rHash[i].has(val)||SUDOKO.cHash[j].has(val)||SUDOKO.boxHash[Math.floor(i/3)*3 + Math.floor(j/3)].has(val)){
+                    return false
+                }
+                else{
+                    SUDOKO.rHash[i].add(val);
+                    SUDOKO.cHash[j].add(val);
+                    SUDOKO.boxHash[Math.floor(i/3)*3 + Math.floor(j/3)].add(val);
+                }
+            }
+        }  
+    }
+    return true;
+}
+
+function clearError(){
+
+}
+function showError(){
+
+}
