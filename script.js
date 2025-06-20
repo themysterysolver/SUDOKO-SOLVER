@@ -176,6 +176,7 @@ class numbers{
                         showError();
                     }else{
                         sub.style.display="block";
+                        clearError();
                         if(error){
                             clearError();
                             error=false;
@@ -300,8 +301,65 @@ function isFullBoardError(){
 }
 
 function clearError(){
-
+    let theBoard=grid;
+    for(let i=0;i<9;i++){
+        for(let j=0;j<9;j++){
+            if(theBoard[i][j].element.classList.contains("alert-it")){
+                theBoard[i][j].element.classList.remove("alert-it")
+            }
+        }
+    }
 }
-function showError(){
 
+function showError(){
+    clearError();
+
+    let boardString=grid.map(row=>row.map(cell=>{
+        const val=cell.val;
+        return (val===""||val=="0")?"0":val;
+    }).join("")).join("");
+    let SUDOKO=new sudoko(boardString);
+
+    const mat = SUDOKO.stringToMatrix(boardString);
+    // for(let i = 0; i < 9; i++) {
+    //     for(let j = 0; j < 9; j++) {
+    //         const val = mat[i][j];
+    //         if(val !== "0") {
+    //             SUDOKO.rHash[i].add(val);
+    //             SUDOKO.cHash[j].add(val);
+    //             SUDOKO.boxHash[Math.floor(i/3)*3 + Math.floor(j/3)].add(val);
+    //         }
+    //     }
+    // }
+
+    for(let i = 0; i < 9; i++){
+        for(let j = 0; j < 9; j++){
+            const val = mat[i][j];
+            if(val !== "0"){
+                if(SUDOKO.rHash[i].has(val)){//||SUDOKO.cHash[j].has(val)||SUDOKO.boxHash[Math.floor(i/3)*3 + Math.floor(j/3)].has(val)){
+                    for(let k=0;k<9;k++){
+                        grid[i][k].element.classList.add("alert-it");
+                    }
+                }
+                if(SUDOKO.cHash[j].has(val)){
+                    for(let k=0;k<9;k++){
+                        grid[k][j].element.classList.add("alert-it");
+                    }
+                }
+                if(SUDOKO.boxHash[Math.floor(i/3)*3 + Math.floor(j/3)].has(val)){
+                    const startRow=Math.floor(i/3)*3;
+                    const startCol=Math.floor(j/3)*3;
+                    for (let r=startRow; r<startRow+3; r++) {
+                        for (let c=startCol; c<startCol+3; c++) {
+                            grid[r][c].element.classList.add("alert-it");
+                        }
+                    }
+                }
+                SUDOKO.rHash[i].add(val);
+                SUDOKO.cHash[j].add(val);
+                SUDOKO.boxHash[Math.floor(i/3)*3 + Math.floor(j/3)].add(val);
+                
+            }
+        }  
+    }
 }
