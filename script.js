@@ -105,6 +105,12 @@ function checker(character){
     return SUDOKO.isValid(character);
 }
 
+function toggleClick(targetTile){
+    if(selectedTile) selectedTile.element.classList.remove("selected");
+    selectedTile=targetTile;
+    targetTile.element.classList.add("selected");
+}
+
 const cellSize=45;
 class Tile{
     constructor(r,c){
@@ -120,17 +126,53 @@ class Tile{
 
         this.element.innerHTML=(this.val!=="0")?this.val:"";
 
-        this.element.addEventListener("click",()=>{
-            if(selectedTile) selectedTile.element.classList.remove("selected");
-            selectedTile=this;
-            this.element.classList.add("selected");
-        });
-
+        this.element.addEventListener("click", () => toggleClick(this));
         if(r%3===0) this.element.classList.add("thick-top");
         if(c%3===0) this.element.classList.add("thick-left");
         if(r===8) this.element.classList.add("thick-btm");
         if(c===8) this.element.classList.add("thick-right");
     }    
+}
+
+function enterNumber(enteredNumber){
+    console.log("CLICKED",enteredNumber);
+    if(selectedTile){
+
+        selectedTile.element.innerHTML=enteredNumber;
+        selectedTile.val=enteredNumber.toString();
+
+        if(!isFullBoardError()){
+            sub.style.display="none";
+            error=true;
+            showError();
+        }else{
+            sub.style.display="block";
+            clearError();
+            if(error){
+                clearError();
+                error=false;
+            }
+        }
+
+    }
+}
+
+function clearNumber(){
+    console.log("CLEAR CLICKED!!");
+    if(selectedTile){
+        selectedTile.element.innerHTML="";
+        selectedTile.val="0";
+
+        if(isFullBoardError()){ //if no error return True
+            sub.style.display="block";
+            error=false;
+            clearError();
+        }else{
+            //make board normal!
+            showError();
+            error=true;
+        }
+    }
 }
 
 var sub=document.getElementById('submit');
@@ -146,45 +188,9 @@ class numbers{
         this.element.innerHTML=id!==9?this.id:"CLEAR";
         if(id===9){
             this.element.style.width=70+"px";
-            this.element.addEventListener("click",()=>{
-                console.log("CLEAR CLICKED!!");
-                if(selectedTile){
-                    selectedTile.element.innerHTML="";
-                    selectedTile.val="0";
-
-                    if(isFullBoardError()){ //if no error return True
-                        sub.style.display="block";
-                        error=false;
-                        clearError();
-                    }else{
-                        //make board normal!
-                        showError();
-                        error=true;
-                    }
-                }
-            });
+            this.element.addEventListener("click",()=>clearNumber());
         }else{
-            this.element.addEventListener("click",()=>{
-                console.log("CLICKED",this.id);
-                if(selectedTile){
-
-                    selectedTile.element.innerHTML=this.id;
-                    selectedTile.val=this.id.toString();
-
-                    if(!isFullBoardError()){
-                        sub.style.display="none"
-                        showError();
-                    }else{
-                        sub.style.display="block";
-                        clearError();
-                        if(error){
-                            clearError();
-                            error=false;
-                        }
-                    }
-
-                }
-            });
+            this.element.addEventListener("click",()=>enterNumber(this.id));
         }
     }
 }
@@ -202,6 +208,86 @@ for(let i=0;i<9;i++){
         board.appendChild(grid[i][j].element);
     }
 }
+
+function submit(){
+    let boardString=grid.map(row=>row.map(cell=>{
+        const val=cell.val;
+        return (val===""||val=="0")?"0":val;
+    }).join("")).join("");
+
+    console.log(boardString);
+
+    //colouring 'em with OG given colours
+    grid.forEach((val)=>val.forEach((el)=>{
+        const val=el.element.innerHTML.trim();
+        if(val!==""){
+            el.element.classList.add("OG-clrs");
+        }
+    }))
+
+    let SUDOKO=new sudoko(boardString);
+    const solved = SUDOKO.solveIt();
+    console.log(solved);
+
+    consoleDisplay(solved);
+
+    //actual display (painting the board)
+    display(solved);
+
+    numb.style.display="none";
+}
+
+document.addEventListener("keydown", (e) => {
+    function moveSelection(deltaX, deltaY){
+        let x = selectedTile.x, 
+            y = selectedTile.y;
+        x += deltaX;
+        y += deltaY;
+        if(x < 0 || x >= 9 || y < 0 || y >= 9)
+            return selectedTile;
+        else
+            return grid[x][y];
+    }
+    let target;
+    if(!selectedTile){
+        target = grid[0][0];
+    }else{
+        switch(e.key){
+            case "ArrowLeft": 
+                target = moveSelection(0, -1);
+                break;
+            case "ArrowDown": 
+                target = moveSelection(1, 0);
+                break;
+            case "ArrowUp": 
+                target = moveSelection(-1, 0);
+                break;
+            case "ArrowRight": 
+                target = moveSelection(0, 1);
+                break;
+            case "1":
+            case "2":
+            case "3":
+            case "4":
+            case "5":
+            case "6":
+            case "7":
+            case "8":
+            case "9":
+                enterNumber(e.key);
+                return;
+            case "Enter":
+                if(!error) submit();
+                return;
+            case "Backspace":
+                clearNumber();
+                return;
+            default:
+                return;
+        }
+    }
+    toggleClick(target);
+})
 
 // function clear(){
 //     for(let i=0;i<9;i++){
@@ -245,33 +331,7 @@ let numb=document.getElementById("numbers");
 function consoleDisplay(mat){
     console.log(mat);
 }
-document.getElementById("submit").addEventListener("click",()=>{
-    let boardString=grid.map(row=>row.map(cell=>{
-        const val=cell.val;
-        return (val===""||val=="0")?"0":val;
-    }).join("")).join("");
-
-    console.log(boardString);
-
-    //colouring 'em with OG given colours
-    grid.forEach((val)=>val.forEach((el)=>{
-        const val=el.element.innerHTML.trim();
-        if(val!==""){
-            el.element.classList.add("OG-clrs");
-        }
-    }))
-
-    let SUDOKO=new sudoko(boardString);
-    const solved = SUDOKO.solveIt();
-    console.log(solved);
-
-    consoleDisplay(solved);
-
-    //actual display (painting the board)
-    display(solved);
-
-    numb.style.display="none";
-});
+document.getElementById("submit").addEventListener("click",()=>submit());
 
 
 function isFullBoardError(){
