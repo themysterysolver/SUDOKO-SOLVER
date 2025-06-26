@@ -16,12 +16,19 @@ body,html{
     justify-content: center;
     align-items: center;
     display: flex;
+    cursor: default;
 }
-.numm{
+.numss{
     margin-top: 20px;
+}
+.numss:not(.cell){
+    cursor: pointer;
 }
 .selected{
     background-color: rgb(163, 222, 239);
+}
+.selected.alert-it{
+    background-color: rgb(191.5, 121, 149.5);
 }
 #container{
     display: flex;
@@ -40,6 +47,7 @@ body,html{
     width: fit-content;
     border: solid black 1px;
     padding: 2px;
+    cursor: pointer;
 }
 .thick-top{
     border-top: 3px solid black;
